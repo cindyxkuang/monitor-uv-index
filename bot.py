@@ -14,18 +14,15 @@ def periodic(scheduler, interval, action, actionargs=()):
                     (scheduler, interval, action, actionargs))
 
 def make_story(zipcode, username):
-    now = datetime.strftime(datetime.now(), '%-I:%M:%S %p, %a %b %-d, %Y')
+    now = datetime.strftime(datetime.now(), '%-I:%M %p, %a %b %-d, %Y')
     location_result = client.get_city(zipcode)
     username = username
-    try:
-        index_result = client.get_index(zipcode)
-        parsed_result = parse_index(int(index_result['current']), int(index_result['prev']))
-        twit_client = Twython(creds['consumer_key'], creds['consumer_secret'], creds['access_token'], creds['access_token_secret'])
-        twit_client.update_status(status='''@{} It is {}. The UV index in {}, {} is now {}. This is a {}% {} from the most recent previous update.'''
-                                            .format(username, now, location_result['city'], location_result['state_abbrev'], index_result['current'], parsed_result['percentage'], parsed_result['up_down']))  
-        time.sleep(3600)
-    except:
-        pass
+    index_result = client.get_index(zipcode)
+    parsed_result = parse_index(int(index_result['current']), int(index_result['prev']))
+    twit_client = Twython(creds['consumer_key'], creds['consumer_secret'], creds['access_token'], creds['access_token_secret'])
+    twit_client.update_status(status='''@{} It is {}. The UV index in {}, {} is now {}. This is a {}% {} from the previous update.'''
+                                        .format(username, now, location_result['city'], location_result['state_abbrev'], index_result['current'], parsed_result['percentage'], parsed_result['up_down']))  
+    time.sleep(3600)
 
 def parse_index(current, prev):
     if prev > 0:

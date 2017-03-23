@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 
 MAPZEN_KEY = 'mapzen-zk4XwPv'
 MAPZEN_BASE_URL = 'https://search.mapzen.com/v1/search'
@@ -16,11 +17,16 @@ def get_city(zipcode):
     return {'city': city, 'state_abbrev': state_abbrev}
 
 def get_index(zipcode):
+    now = datetime.strftime(datetime.now(), '%b/%d/%Y %I %p').upper()
+
     request_url = EPA_BASE_URL + '/' + zipcode + '/json'
     response = requests.get(request_url)
     content = response.json()
     
-    current = content[-1]['UV_VALUE']
-    prev = content[-2]['UV_VALUE']
-
+    prev = content[-1]['UV_VALUE']
+    for index in content:
+        current = index['UV_VALUE']
+        if index['DATE_TIME'] == now:
+            break
+        prev = current
     return {'current': current, 'prev': prev}
